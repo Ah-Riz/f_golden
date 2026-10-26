@@ -1,6 +1,6 @@
 # Gold Rush AI
 
-Research-grade XAUUSD EA fork + optional GLM-4.7-Flash advisory.
+Research-grade XAUUSD EA fork + optional GLM advisory (default model in code `glm-4.7-flash`; `.env` often `glm-5.3-flash`).
 
 - **Frozen:** `gold_rush_pro_Fixed.mq5`, `gold_rush_AI_v0.1.mq5`, `gold_rush_AI_v0.2.mq5`, `gold_rush_AI_v0.3.mq5` — do not edit
 - **Active:** `gold_rush_AI_v0.3.1.mq5` (SMC_Lana_OB gate) · `gold_rush_AI_v0.4.mq5` — see [`currently best/`](currently%20best/) for prior best
@@ -36,7 +36,7 @@ Short version:
 |---|---|
 | `ZAI_API_KEY` | [z.ai](https://z.ai) → API Keys ([howto](https://docs.z.ai/guides/develop/http/introduction)) |
 | `GRAI_BASE_URL` | Usually `https://api.z.ai/api/paas/v4` ([OpenAI SDK guide](https://docs.z.ai/guides/develop/openai/python)) |
-| `GRAI_MODEL` | Your Z.AI plan model id (default `glm-4.7-flash`) |
+| `GRAI_MODEL` | Your Z.AI plan model id (code default `glm-4.7-flash`) |
 | `GRAI_BRIDGE_TOKEN` | You invent it; paste same into EA `InpBridgeToken` |
 
 ```bash
@@ -45,3 +45,5 @@ bash scripts/run_bridge.sh
 ```
 
 Allow WebRequest URL `http://127.0.0.1:8765` in MT5. Never put the API key in MQL5.
+
+**P0 continue / new device:** [docs/DEVICE_HANDOFF.md](docs/DEVICE_HANDOFF.md) · prompt + verify: [docs/GLM_PROVIDER_VERIFY.md](docs/GLM_PROVIDER_VERIFY.md) · exit: [docs/P0_ADVISORY_EXIT.md](docs/P0_ADVISORY_EXIT.md)

@@ -44,3 +44,9 @@ The Python bridge loads `.env` automatically. **Never put the API key in the EA.
 | `InpGlmTimeoutMs` | Sync transport timeout ms (WebRequest live / file poll tester; Arm E set uses 5000) |
 
 If the key or URL is wrong, the bridge returns **WAIT** (safe). No profit guarantee.
+
+## Ops notes
+
+- **Broken pipe** on the bridge console while answering `/advise`: the client closed early (often EA `InpGlmTimeoutMs=1000` while GLM is slower). Bridge usually keeps running; EA fail-safe is WAIT / timeout. See [`GLM_PROVIDER_VERIFY.md`](GLM_PROVIDER_VERIFY.md).
+- **Device switch:** copy `.env` yourself; start from [`DEVICE_HANDOFF.md`](DEVICE_HANDOFF.md).
+- Prompt text is **not** in `.env` — only `GRAI_PROMPT_VERSION`. Body is in `python/bridge/server.py`.

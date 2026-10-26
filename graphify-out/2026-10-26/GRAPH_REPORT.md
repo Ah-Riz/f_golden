@@ -1,11 +1,11 @@
-# Graph Report - gold_rush_AI  (2026-10-25)
+# Graph Report - gold_rush_AI  (2026-10-26)
 
 ## Corpus Check
-- 42 files · ~748,880 words
+- 44 files · ~836,728 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 321 nodes · 405 edges · 27 communities (21 shown, 6 thin omitted)
+- 358 nodes · 440 edges · 29 communities (23 shown, 6 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
@@ -36,6 +36,8 @@
 - V0.4_PARAMS.md
 - v0.3.3 — SmcLana bias + MTF gates (no H4 overwrite)
 - v0.3.4 — Soft hyb3 ladder (SmcLana + H4 veto + optional loose M5)
+- §7.3 Downside / tail-risk evaluation
+- Pre-AI candidate (awaiting final digests)
 - 1. OnTick, in execution order
 
 ## God Nodes (most connected - your core abstractions)
@@ -43,12 +45,12 @@
 2. `export_deals_trades()` - 11 edges
 3. `analyze_trade()` - 11 edges
 4. `1. OnTick, in execution order` - 11 edges
-5. `How Gold Rush AI v0.3 enters the market — full trace (`v0.3_armC_dynamic.set`)` - 10 edges
-6. `Gold Rush AI set codes` - 10 edges
+5. `Gold Rush AI set codes` - 11 edges
+6. `How Gold Rush AI v0.3 enters the market — full trace (`v0.3_armC_dynamic.set`)` - 10 edges
 7. `SectionTableParser` - 9 edges
 8. `Exit / Holding Audit (frozen)` - 9 edges
 9. `Fixed_001 — v0.4 close port` - 9 edges
-10. `Handler` - 8 edges
+10. `§7.3 Downside / tail-risk evaluation` - 9 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `main()` --calls--> `call_provider()`  [EXTRACTED]
@@ -65,7 +67,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (27 total, 6 thin omitted)
+## Communities (29 total, 6 thin omitted)
 
 ### Community 0 - "04 — Long/Short Entries, Exits, Parameters, Trading Style & Backtesting"
 Cohesion: 0.13
@@ -89,7 +91,7 @@ Nodes (29): Ablation E vs D, Arm E preflight (required — avoids 0 trades), Bac
 
 ### Community 10 - "Gold Rush AI Strategy Tester sets"
 Cohesion: 0.12
-Nodes (14): Gold Rush AI set codes, Screen S pin, v0.1 (frozen baseline), v0.2 (frozen), v0.3.1 (SMC_Lana_OB entry gate), v0.3.2 (MTF phrase stack), v0.3.3 (SmcLana bias + MTF gates), v0.3.4 (soft hyb3 ladder) (+6 more)
+Nodes (15): Gold Rush AI set codes, Screen S pin, v0.1 (frozen baseline), v0.2 (frozen), v0.3.1 (SMC_Lana_OB entry gate), v0.3.2 (MTF phrase stack), v0.3.3 (SmcLana bias + MTF gates), v0.3.4 final (pre-AI SMC usage ablation) (+7 more)
 
 ### Community 11 - "deploy_mt5.sh"
 Cohesion: 0.36
@@ -144,15 +146,23 @@ Cohesion: 0.33
 Nodes (5): Hard gates (closed bar `shift=1`), Research sets, Split roles, Tester checklist, v0.3.3 — SmcLana bias + MTF gates (no H4 overwrite)
 
 ### Community 25 - "v0.3.4 — Soft hyb3 ladder (SmcLana + H4 veto + optional loose M5)"
-Cohesion: 0.33
-Nodes (5): Hard gates (closed bar `shift=1`), Research sets, Split roles, Tester checklist, v0.3.4 — Soft hyb3 ladder (SmcLana + H4 veto + optional loose M5)
+Cohesion: 0.29
+Nodes (6): Final pre-AI pack (`sets/export_v0.3.4_final/`), Hard gates (closed bar `shift=1`), Research sets, Split roles, Tester checklist, v0.3.4 — Soft hyb3 ladder (SmcLana + H4 veto + optional loose M5)
+
+### Community 26 - "§7.3 Downside / tail-risk evaluation"
+Cohesion: 0.07
+Nodes (27): 1. LPM, 2. UNCONFIRMED, 3. MPM / HPM, 7.3.1 Purpose, 7.3.2 Absolute hard limits (never loosened), 7.3.3 Definitions, 7.3.4 Training-derived reference thresholds (B0 train only), 7.3.5 Bucket tail statistics — single deterministic procedure (+19 more)
+
+### Community 27 - "Pre-AI candidate (awaiting final digests)"
+Cohesion: 0.29
+Nodes (6): AI chat constraints (non-negotiable), Freeze rule, Frozen winner (fill after slice), Interim pin (until digests land), Pre-AI candidate (awaiting final digests), Tester checklist (user)
 
 ### Community 43 - "1. OnTick, in execution order"
 Cohesion: 0.07
 Nodes (26): 1.10 Calendar gates — `:3148-3236`, 1.1 Spread filter — `:2648`, 1.2 Episode close + ladder sync — `:2655-2662`, 1.3 The per-tick kill switches — `:2663-2757`, 1.4 Pyramid attempt — `:2756`, 1.5 Base lot arithmetic — `:2773-2826`, 1.6 Housekeeping — `:2827-2891`, 1.7 The ratchet lines — `:2892-2940` (+18 more)
 
 ## Knowledge Gaps
-- **140 isolated node(s):** `run_bridge.sh script`, `GRAI_MT5_ROOT`, `Quick start (v0.3.1 OB ablation)`, `Bridge (Path B / Arm E)`, `Assumptions / unresolved` (+135 more)
+- **169 isolated node(s):** `run_bridge.sh script`, `GRAI_MT5_ROOT`, `Quick start (v0.3.1 OB ablation)`, `Bridge (Path B / Arm E)`, `Assumptions / unresolved` (+164 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -160,7 +170,7 @@ Nodes (26): 1.10 Calendar gates — `:3148-3236`, 1.1 Spread filter — `:2648`,
 _Questions this graph is uniquely positioned to answer:_
 
 - **What connects `run_bridge.sh script`, `GRAI_MT5_ROOT`, `Quick start (v0.3.1 OB ablation)` to the rest of the system?**
-  _140 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _169 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `04 — Long/Short Entries, Exits, Parameters, Trading Style & Backtesting` be split into smaller, more focused modules?**
   _Cohesion score 0.13333333333333333 - nodes in this community are weakly interconnected._
 - **Should `QA gate — Gold Rush AI v0.1` be split into smaller, more focused modules?**
@@ -170,6 +180,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `README.md` be split into smaller, more focused modules?**
   _Cohesion score 0.058823529411764705 - nodes in this community are weakly interconnected._
 - **Should `Gold Rush AI Strategy Tester sets` be split into smaller, more focused modules?**
-  _Cohesion score 0.125 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11764705882352941 - nodes in this community are weakly interconnected._
 - **Should `1. Scoreboard` be split into smaller, more focused modules?**
   _Cohesion score 0.10526315789473684 - nodes in this community are weakly interconnected._

@@ -8,6 +8,7 @@
 
 struct GRAI_FeatureSnap
 {
+   string   opportunity_id;
    string   request_id;
    string   symbol;
    datetime bar_time;
@@ -58,13 +59,13 @@ int GRAI_GuessParentMomentum(const int set_strategies, const bool set_ema)
 string GRAI_BuildFeatureJson(const GRAI_FeatureSnap &s)
 {
    return StringFormat(
-      "{\"request_id\":\"%s\",\"symbol\":\"%s\",\"decision_bar_time\":%s,"
+      "{\"opportunity_id\":\"%s\",\"request_id\":\"%s\",\"symbol\":\"%s\",\"decision_bar_time\":%s,"
       "\"bid\":%.5f,\"ask\":%.5f,\"spread\":%.1f,\"regime\":%d,\"regime_name\":\"%s\","
       "\"session_ok\":%s,\"news_blackout\":%s,\"spike_bar\":%s,"
       "\"momentum_id\":\"%s\",\"basket_count\":%d,"
       "\"episode_remaining_risk\":%.4f,\"deterministic_max_layers\":%d,"
-      "\"data_quality_status\":\"%s\",\"schema_version\":\"grai.glm.v0.2\"}",
-      s.request_id, s.symbol, IntegerToString((long)s.bar_time),
+      "\"data_quality_status\":\"%s\",\"schema_version\":\"grai.glm.v0.3.4\"}",
+      s.opportunity_id, s.request_id, s.symbol, IntegerToString((long)s.bar_time),
       s.bid, s.ask, s.spread, s.regime, GRAI_RegimeStr(s.regime),
       (s.session_ok ? "true" : "false"),
       (s.news_blackout ? "true" : "false"),

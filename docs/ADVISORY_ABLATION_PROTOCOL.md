@@ -1,6 +1,6 @@
 # Pre-registered Advisory Ablation Protocol
 
-**Status:** Revised after manager review (approved in principle) — **not** the scored-experiment contract until written sign-off of this revision.  
+**Status:** **APPROVED WITH AMENDMENT** (Manager GO). **P0 authorized**; stop at P0 review gate (`docs/P0_ADVISORY_EXIT.md`). P1 after P0 passes review. P2 conditional.  
 **Track:** Pre-AI / advisory research (separate from Phase 1 historical-performance AS).  
 **Frozen strategy baseline:** Candidate B per `docs/PRE_AI_CANDIDATE.md`  
 **Educational only — no profit guarantee.**
@@ -44,14 +44,14 @@ Hard match: same EA/include/`.ex5` hashes, costs, deposit, calendar, determinist
 
 | Window | Dates (broker server time) | Role |
 |---|---|---|
-| **W-REG (regression)** | `2026-01-01 00:00:00` → `2026-03-01 00:00:00` **exclusive** | Historical reproduction, integration test, exploratory research. **Not** untouched holdout. **Not** sole proof of incremental advisory value. Candidate B was selected using this period. |
-| **W-CONF (confirmatory)** | **Proposed:** `2025-07-01 00:00:00` → `2026-01-01 00:00:00` **exclusive** | Pre-registered chronological window **not** used to select B or to tune advisory prompt, thresholds, action mapping, or acceptance criteria. Freeze before examining B1 confirmatory results. |
+| **W-REG (regression)** | `[2026-01-01, 2026-03-01)` broker server | Historical reproduction, integration test, exploratory research. **Not** untouched holdout. Candidate B was selected using this period. |
+| **W-CONF (confirmatory)** | **Candidate to verify/freeze:** `[2026-03-01, 2026-10-01)` (Mar–Sep 2026), **after** W-REG | Forward-time confirmatory window. Verify Tester coverage + not used for advisory tuning **without inspecting confirmatory P&L**. Freeze exact dates/data snapshot before B1 confirmatory scoring. If unsuitable, pick another contiguous **post–W-REG** window — never silently substitute an earlier window as “forward” confirmation. |
 
 **Rules:**
 
 - Exploratory findings on W-REG may inform a **new protocol version**; once they influence advisory design, W-REG must not be presented as independent confirmation.  
-- Confirmatory pass/fail uses **W-CONF** only (plus mandatory safety tests that may use synthetic invalid responses).  
-- **BLOCKER until manager confirms:** W-CONF dates contingent on available XAUUSD M5 history in the Tester profile. If 2025-07 data are incomplete, substitute the longest contiguous pre-2026-01 block available and freeze that substitute **before** B1 confirmatory scoring.
+- Confirmatory pass/fail uses **frozen W-CONF** only (plus mandatory safety tests that may use synthetic invalid responses).  
+- P0 may check data availability / prior-examination status only — **no** confirmatory P&L aggregation to select the window or tune advisory.
 
 ---
 
@@ -223,26 +223,21 @@ Join on `request_id` / opportunity_id: feature snapshot → advisory response (+
 
 ---
 
-## 9. Build / implementation gating (ask manager)
+## 9. Build / implementation gating (authorized)
 
-| Phase | When | What |
+| Phase | Status | What |
 |---|---|---|
-| **P0** | After this protocol written approval | Schema/mapper for CONFIRM\|WAIT\|… ; shadow opportunity clock; audit logs; fault-injection harness; file-transport latency measurement |
-| **P1** | After P0 green on W-REG (integration only) | Scored B0/B1 on **W-REG** as regression reference (not confirmatory claim) |
-| **P2** | After W-CONF dates frozen + no further advisory tuning | Scored B0/B1 on **W-CONF**; apply §6 pass/fail |
+| **P0** | **Authorized now** (Manager GO) | Schema/mapper; side-effect-free shadow clock; audit + latency; fault injection; B1 set; W-CONF coverage check (no P&L); exit report |
+| **P1** | After P0 passes review | Scored B0/B1 on **W-REG** only (not confirmatory claim) |
+| **P2** | Conditional | Frozen W-CONF + frozen advisory design; §6 pass/fail |
 
-**We will not start P0/P1/P2 until you specify when to build** (see manager reply).
+### P0 safeguards (mandatory)
 
----
+1. `InpLLMEnabled=false` trading path unchanged; shadow logs only; no SmcLana edits.  
+2. Stable `opportunity_id` ≠ unique `request_id`; late/duplicate must not apply to a later request.  
+3. W-CONF coverage check without examining confirmatory performance.  
+4. Action contract: CONFIRM / WAIT / REDUCE_FUTURE_LAYERS / HALT_NEW_ENTRIES (+ legacy BUY/SELL→CONFIRM or WAIT).
 
-## 10. Approval checklist
-
-1. W-REG vs W-CONF split and proposed W-CONF dates (or amended dates)  
-2. Shared clock + \(\Delta_{\mathrm{adv}}\) + terminal liquidation rules  
-3. Tightened action set + legacy BUY/SELL → WAIT-on-mismatch  
-4. Evidence floor = 50 parent episodes/arm; \(\Delta\) gates; 95% health; DD +1 pp; safety override  
-5. **Authorization to begin build** — which phase (P0/P1/P2) and on what date  
-
-Until written approval of this revision **and** an explicit build authorization, scored B1 results are not contract-complete and implementation of advisory ablation code remains on hold (read-only prep allowed).
+**P0 is not green until** [`docs/P0_ADVISORY_EXIT.md`](P0_ADVISORY_EXIT.md) is submitted and reviewed.
 
 — Gold Rush AI engineering

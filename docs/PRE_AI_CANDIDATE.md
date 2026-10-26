@@ -62,7 +62,7 @@ This freeze is for the **pre-AI / advisory research track** only. It does **not*
 
 ## Next milestone
 
-**Pre-registered Advisory Ablation Protocol:** `docs/ADVISORY_ABLATION_PROTOCOL.md` — revised after manager review (regression W-REG vs confirmatory W-CONF, \(\Delta_{\mathrm{adv}}\), tightened actions). Pending written sign-off + explicit **when to build** authorization before scored B1 claims.
+**Pre-registered Advisory Ablation Protocol:** `docs/ADVISORY_ABLATION_PROTOCOL.md` — **APPROVED WITH AMENDMENT**; W-CONF candidate `[2026-03-01, 2026-10-01)`; **P0 authorized** (stop at `docs/P0_ADVISORY_EXIT.md` review). P1/P2 not yet.
 
 ## Optional follow-up (not required for AI start)
 

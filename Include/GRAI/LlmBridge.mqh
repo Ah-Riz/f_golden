@@ -25,8 +25,8 @@ string        g_grai_bridge_token    = "";
 int           g_grai_timeout_ms      = 1000;
 int           g_grai_file_fail_streak = 0;   // Tester file transport: consecutive FILE_TIMEOUTs
 uint          g_grai_file_last_try   = 0;    // circuit breaker: last attempt tick (re-probe pacing)
-string        g_grai_schema_version  = "grai.glm.v0.3";
-string        g_grai_prompt_version  = "grai.prompt.v0.2";
+string        g_grai_schema_version  = "grai.glm.v0.3.4";
+string        g_grai_prompt_version  = "grai.prompt.v0.3.4";
 GRAI_GlmAdvice g_grai_advice_bar;
 datetime      g_grai_advice_bar_time = 0;
 
@@ -65,7 +65,8 @@ void GRAI_AdviceStore(const GRAI_GlmAdvice &a, const datetime bar_time)
    g_grai_advice_bar_time = bar_time;
 }
 
-// AND gate: Fixed cmd (OP_BUY/OP_SELL) must match GLM decision for this bar
+// AND gate: advisory may CONFIRM pending cmd, WAIT/HALT_NEW block, REDUCE_FUTURE caps layers.
+// Legacy BUY/SELL: only if they match cmd (else WAIT). LLM OFF → unchanged allow.
 bool GRAI_GlmAllowsCmd(const int cmd, const bool llm_enabled, const bool det_fallback)
 {
    if(!llm_enabled)
@@ -76,25 +77,29 @@ bool GRAI_GlmAllowsCmd(const int cmd, const bool llm_enabled, const bool det_fal
       GRAI_Log("SKIP", "glm_wait no_advice");
       return false;
    }
-   if(g_grai_advice_bar.decision == GRAI_DEC_WAIT ||
-      g_grai_advice_bar.decision == GRAI_DEC_HALT ||
-      g_grai_advice_bar.recommended_max_layers <= 0)
+   const int dec = g_grai_advice_bar.decision;
+   if(dec == GRAI_DEC_WAIT || dec == GRAI_DEC_HALT || dec == GRAI_DEC_HALT_NEW)
    {
       if(det_fallback) return true;
       GRAI_Log("SKIP", StringFormat("glm_wait code=%s", g_grai_advice_bar.failure_code));
       return false;
    }
-   if(cmd == OP_BUY && g_grai_advice_bar.decision != GRAI_DEC_BUY)
+   if(dec == GRAI_DEC_CONFIRM || dec == GRAI_DEC_REDUCE_FUTURE)
    {
-      GRAI_Log("SKIP", "glm_mismatch want=BUY");
-      return false;
+      if(dec == GRAI_DEC_REDUCE_FUTURE && g_grai_advice_bar.recommended_max_layers <= 0)
+      {
+         if(det_fallback) return true;
+         GRAI_Log("SKIP", "glm_wait layers<=0");
+         return false;
+      }
+      return true; // pending deterministic cmd only
    }
-   if(cmd == OP_SELL && g_grai_advice_bar.decision != GRAI_DEC_SELL)
-   {
-      GRAI_Log("SKIP", "glm_mismatch want=SELL");
-      return false;
-   }
-   return true;
+   // Legacy BUY/SELL: must match Fixed cmd
+   if(dec == GRAI_DEC_BUY) return (cmd == OP_BUY);
+   if(dec == GRAI_DEC_SELL) return (cmd == OP_SELL);
+   if(det_fallback) return true;
+   GRAI_Log("SKIP", "glm_wait bad_decision");
+   return false;
 }
 
 bool GRAI_JsonGetString(const string json, const string key, string &out)
@@ -140,10 +145,13 @@ bool GRAI_JsonGetDouble(const string json, const string key, double &out)
 
 int GRAI_MapDecision(const string d)
 {
+   if(d == "CONFIRM") return GRAI_DEC_CONFIRM;
+   if(d == "REDUCE_FUTURE_LAYERS") return GRAI_DEC_REDUCE_FUTURE;
+   if(d == "HALT_NEW_ENTRIES") return GRAI_DEC_HALT_NEW;
    if(d == "BUY") return GRAI_DEC_BUY;
    if(d == "SELL") return GRAI_DEC_SELL;
-   if(d == "REDUCE_LAYER") return GRAI_DEC_REDUCE_LAYER;
-   if(d == "HALT") return GRAI_DEC_HALT;
+   if(d == "REDUCE_LAYER") return GRAI_DEC_REDUCE_FUTURE;
+   if(d == "HALT") return GRAI_DEC_HALT_NEW;
    return GRAI_DEC_WAIT;
 }
 
@@ -296,6 +304,8 @@ GRAI_GlmAdvice GRAI_AdviceViaFile(const string request_id, const string body)
          FileClose(fh);
          FileDelete(resp_name);
          g_grai_file_fail_streak = 0;
+         uint latency_ms = (uint)(GetTickCount() - start);
+         GRAI_Log("LLM_LATENCY", StringFormat("id=%s latency_ms=%u path=file ok=1", request_id, latency_ms));
          string json = CharArrayToString(out, 0, read, CP_UTF8);
          return GRAI_AdviceFromJson(json, request_id, 200);
       }
@@ -308,6 +318,7 @@ GRAI_GlmAdvice GRAI_AdviceViaFile(const string request_id, const string body)
    // No answer in time: cancel the request, count toward circuit breaker
    FileDelete(req_name);
    g_grai_file_fail_streak++;
+   GRAI_Log("LLM_LATENCY", StringFormat("id=%s latency_ms=%u path=file ok=0 timeout=1", request_id, timeout));
    return GRAI_FailWait("BOT", "FILE_TIMEOUT",
       StringFormat("id=%s waited=%ums nonce=%s", request_id, timeout, s_nonce));
 }

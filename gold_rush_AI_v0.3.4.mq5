@@ -2758,6 +2758,19 @@ void OnTick()
    static datetime s_grai_llm_bar = 0;
    static bool     s_grai_llm_wait_bar = false;
    datetime grai_bar = iTime(_Symbol, PERIOD_CURRENT, 0);
+   // Side-effect-free opportunity clock (log only; never OrderSend). LLM OFF unchanged for trading.
+   if(grai_bar != s_grai_llm_bar)
+   {
+      string opp_id = StringFormat("opp-%s-%s", _Symbol, IntegerToString((long)grai_bar));
+      int bask = GRP_BasketCount();
+      string block = (bask > 0 ? "BLOCKED_POSITION_STATE" : "NONE");
+      GRAI_Log("OPP", StringFormat(
+         "id=%s bar=%s basket=%d session=%d news=%d spike=%d block=%s",
+         opp_id, IntegerToString((long)grai_bar), bask,
+         (GRP_IsMarketTradeAllowed() ? 1 : 0),
+         ((InpUseParentNews30 && GRAI_NewsParentBlackout(TimeCurrent())) ? 1 : 0),
+         (grai_spike ? 1 : 0), block));
+   }
    if(InpLLMEnabled)
    {
       if(grai_bar != s_grai_llm_bar)
@@ -2767,7 +2780,9 @@ void OnTick()
          GRAI_AdviceClear();
          GRAI_FeatureSnap snap;
          ZeroMemory(snap);
-         snap.request_id = StringFormat("%s-%s", _Symbol, IntegerToString((long)grai_bar));
+         snap.opportunity_id = StringFormat("opp-%s-%s", _Symbol, IntegerToString((long)grai_bar));
+         // Unique per call — must not equal opportunity_id; late replies cannot bind to next req
+         snap.request_id = StringFormat("req-%s-%s-%u", _Symbol, IntegerToString((long)grai_bar), GetTickCount());
          snap.symbol = _Symbol;
          snap.bar_time = grai_bar;
          snap.bid = Bid;
@@ -2784,20 +2799,32 @@ void OnTick()
             : AccountEquity() * (InpMaxEpisodeRiskPct / 100.0);
          snap.deterministic_max_layers = InpMaxLayers;
          snap.data_quality = (snap.session_ok && !snap.news_blackout) ? "VALID" : "INCOMPLETE";
+         GRAI_Log("LLM_BIND", StringFormat("opp=%s request_id=%s", snap.opportunity_id, snap.request_id));
          string body = GRAI_BuildAdviseBody(snap);
+         // LLM_STALE / rid mismatch handled inside GRAI_AdviceFromJson
          GRAI_GlmAdvice adv = GRAI_RequestAdvice(snap.request_id, body);
          GRAI_AdviceStore(adv, grai_bar);
-         if(!adv.valid || adv.decision == GRAI_DEC_WAIT || adv.decision == GRAI_DEC_HALT
-            || adv.recommended_max_layers <= 0)
+         bool block_new = (!adv.valid ||
+            adv.decision == GRAI_DEC_WAIT ||
+            adv.decision == GRAI_DEC_HALT ||
+            adv.decision == GRAI_DEC_HALT_NEW ||
+            ((adv.decision == GRAI_DEC_BUY || adv.decision == GRAI_DEC_SELL ||
+              adv.decision == GRAI_DEC_REDUCE_FUTURE) &&
+             adv.recommended_max_layers <= 0));
+         if(block_new)
          {
             if(!InpDeterministicFallback)
                s_grai_llm_wait_bar = true;
-            if(adv.decision == GRAI_DEC_HALT)
-               GRAI_Log("KILL", "glm_halt");
+            if(adv.decision == GRAI_DEC_HALT || adv.decision == GRAI_DEC_HALT_NEW)
+               GRAI_Log("KILL", "glm_halt_new_entries");
          }
       }
       if(s_grai_llm_wait_bar)
          g_grai_entries_allowed = false;
+   }
+   else if(grai_bar != s_grai_llm_bar)
+   {
+      s_grai_llm_bar = grai_bar; // advance bar marker so OPP does not spam every tick
    }
 
    if(g_grai_entries_allowed)

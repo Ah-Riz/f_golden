@@ -49,10 +49,13 @@ enum ENUM_GRAI_CLASS
 enum ENUM_GRAI_DECISION
 {
    GRAI_DEC_WAIT         = 0,
-   GRAI_DEC_BUY          = 1,
+   GRAI_DEC_BUY          = 1, // legacy; match cmd at gate
    GRAI_DEC_SELL         = 2,
-   GRAI_DEC_REDUCE_LAYER = 3,
-   GRAI_DEC_HALT         = 4
+   GRAI_DEC_REDUCE_LAYER = 3, // legacy → treat as REDUCE_FUTURE
+   GRAI_DEC_HALT         = 4, // legacy → treat as HALT_NEW
+   GRAI_DEC_CONFIRM      = 5,
+   GRAI_DEC_REDUCE_FUTURE = 6,
+   GRAI_DEC_HALT_NEW     = 7
 };
 
 enum ENUM_GRAI_BIAS
