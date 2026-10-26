@@ -1,0 +1,63 @@
+---
+description: No look-ahead, walk-forward, experiment matrix A–E, dual promote with Mode S
+alwaysApply: true
+---
+
+# Research validation and promote gates
+
+## No look-ahead / leakage
+
+Forbid: future candles or spreads; future outcomes in historical decisions; win rate from the test period; relabeling history after seeing results; tuning on the final holdout; overlapping episodes leaking train↔test.
+
+Statistics used at time `t` must use **only** data available before `t`.
+
+## Model stages
+
+Separate **research** → **candidate** → **production**. Process: in-sample development → validation → walk-forward calibration → strict OOS → demo/paper → small controlled deployment.
+
+### Walk-forward
+
+- Compute momentum stats only from the past window.
+- Classify LPM/MPM/HPM from past data only.
+- Apply allocation to the next unseen period; roll forward; repeat.
+- Keep a **final holdout** untouched until the end.
+
+## Experiment matrix (identical data, costs, execution, risk budget)
+
+| ID | Model |
+|---|---|
+| A | Single-position fixed-risk baseline |
+| B | Fixed-layer strategy |
+| C | Dynamic LPM/MPM/HPM allocation |
+| D | C + market-regime filter |
+| E | D + LLM |
+
+Report trade-level **and** episode-level results; yearly and by-regime; sensitivity to spread and slippage; confidence/uncertainty; failure cases — not only winners.
+
+Main hypothesis (research framing): dynamic regime-aware momentum allocation improves risk-adjusted performance and reduces unnecessary exposure vs fixed-layer execution. Do not claim this is proven until experiments pass.
+
+## Objective function
+
+Do **not** optimize only for net profit. Prefer risk-adjusted multi-metrics: net return, max DD, profit factor, expectancy, recovery time, stability across periods/regimes, spread/slip sensitivity, complexity penalty. Prefer robust parameter regions over one perfect combo.
+
+Reject strategies that work only in one year, one momentum, or one session; need unrealistic fills; collapse on slight spread increase; show unacceptable tails; rely on excessive layering; or show a large IS↔OOS gap.
+
+## Dual promote (with Mode S)
+
+Before promote / Reset defaults / live size, **both** required:
+
+1. Approved walk-forward + untouched holdout with acceptable risk-adjusted metrics (this file).
+2. Mode S salary range pass + slicer digest at RoboForex cent pin (`ea-salary-mission.mdc`).
+
+Cite `ea_version` + `pack_id` + `set_name` on every scoreboard. Never invent digests or WF summaries.
+
+## Pre-deployment audit classes
+
+When auditing, classify every checklist item as:
+
+- **mandatory before demo**
+- **mandatory before live**
+- **recommended**
+- **optional**
+
+Critical unknown/invalid → system must FAIL SAFE to **WAIT**. Use `hostile-reviewer.mdc` for the full hostile checklist format.

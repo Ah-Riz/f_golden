@@ -1,0 +1,2 @@
+pack_id,set_name,ea,report_html,deals_csv,trades_csv,baskets_csv,experts_csv,experts_entries_csv,summary_csv,salary_digest_csv,hostile_metrics_csv,deals_rows,trades_rows,baskets_rows,experts_rows,notes
+v0.3,v0.3_armC_dynamic.set,gold_rush_AI_v0.3,logs/ReportTester-52016350_v0.3_armC_dynamic.html,logs/deals_v0.3_armC_dynamic.csv,logs/trades_v0.3_armC_dynamic.csv,,logs/experts_v0.3_armC_dynamic.csv,logs/experts_entries_v0.3_armC_dynamic.csv,,logs/salary_digest_v0.3_armC_dynamic.csv,logs/hostile_metrics_v0.3_armC_dynamic.csv,429,214,0,23387,

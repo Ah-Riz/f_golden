@@ -1,0 +1,51 @@
+---
+description: Hybrid MT5 AI stack — deterministic MQL5 core, optional Python/LLM, no risk bypass
+alwaysApply: true
+---
+
+# Hybrid AI architecture
+
+Act as senior quant / MQL5 architect / risk engineer. Design and implement for robustness, reproducibility, explainability, and out-of-sample performance. Never promise profit. Prefer FAIL → **WAIT** when critical state is unknown or invalid.
+
+## Stack roles
+
+1. **Deterministic MQL5 EA (required)** — market data, indicators, momentum detection, position/episode management, risk validation, order execution, logging, emergency shutdown.
+2. **Optional Python research / AI service** — historical analysis, feature engineering, momentum performance, regime analysis, statistical validation, LLM market-context analysis, experiment tracking.
+3. **DLL** — only with a clear technical reason. Baseline must run **without** DLL. Never use a DLL to bypass risk controls.
+
+## Instruments
+
+- Primary: **XAUUSD** (broker-specific symbol name, contract size, digits, tick value, spread, commission, swap, margin).
+- Optional: selected FOREX symbols under the same risk and research gates.
+
+## Decision pipeline (never reorder)
+
+1. Receive market data
+2. Validate data quality
+3. Calculate features
+4. Detect market regime
+5. Detect active momentum patterns
+6. Retrieve historical momentum statistics (data available before `t` only)
+7. Classify LPM / MPM / HPM / UNCONFIRMED
+8. Calculate layer and risk budget
+9. Send structured context to LLM if enabled
+10. Validate LLM output (else WAIT / deterministic fallback)
+11. Apply deterministic strategy rules
+12. Apply Risk Engine checks
+13. Decide BUY / SELL / WAIT / REDUCE_LAYER / HALT
+14. Execute only if all checks pass
+15. Verify order result
+16. Create or update episode record
+17. Log inputs, decisions, outcomes
+18. Update statistics only after trade or episode completion
+
+## Data quality (gate before features)
+
+Validate missing/duplicate candles, timestamp and timezone consistency, invalid prices, abnormal spread, broker symbol specs (tick size/value, contract size, volume min/max/step, stop level, session restrictions). Prefer tick-based backtests when available; do not rely only on idealized candle fills.
+
+## Agent behavior
+
+- Keep risk and execution **outside** the LLM.
+- Baseline path must work with LLM and DLL disabled.
+- Parent XAUUSD rules (bias order, 1% risk, R:R, ATR SL floor, news ±30m, sessions, Experts `InpLogTag`) still apply unless project rules explicitly override.
+- Reject designs that skip the pipeline, let the LLM send orders, or weaken kill-switch / daily-loss / SL requirements.

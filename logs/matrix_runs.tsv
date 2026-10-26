@@ -1,0 +1,7 @@
+ts	stem	ok	report	experts_bytes	elapsed_sec	model	exec_mode	mt5
+2026-10-15T17:36:50+07:00	v0.3_armC_smc_a_L500_noma_noema	ok	/home/lana/Documents/work/forex/gold_rush_AI/logs/ReportTester-52016350_v0.3_armC_smc_a_L500_noma_noema.html	0	1306	0	1000	/home/lana/.mt5/drive_c/Program Files/MetaTrader 5
+2026-10-15T17:41:57+07:00	v0.3_armC_smc_a_L5k_noma_noema	ok	/home/lana/Documents/work/forex/gold_rush_AI/logs/ReportTester-52016350_v0.3_armC_smc_a_L5k_noma_noema.html	0	252	1	1000	/home/lana/.mt5/drive_c/Program Files/MetaTrader 5
+2026-10-15T17:46:07+07:00	v0.3_armC_smc_a_L500_ma_noema	ok	/home/lana/Documents/work/forex/gold_rush_AI/logs/ReportTester-52016350_v0.3_armC_smc_a_L500_ma_noema.html	0	248	1	1000	/home/lana/.mt5/drive_c/Program Files/MetaTrader 5
+2026-10-15T17:50:26+07:00	v0.3_armC_smc_a_L500_noma_ema	ok	/home/lana/Documents/work/forex/gold_rush_AI/logs/ReportTester-52016350_v0.3_armC_smc_a_L500_noma_ema.html	0	255	1	1000	/home/lana/.mt5/drive_c/Program Files/MetaTrader 5
+2026-10-15T17:54:33+07:00	v0.3_armC_smc_a_L500_ma_ema	ok	/home/lana/Documents/work/forex/gold_rush_AI/logs/ReportTester-52016350_v0.3_armC_smc_a_L500_ma_ema.html	0	245	1	1000	/home/lana/.mt5/drive_c/Program Files/MetaTrader 5
+2026-10-15T21:04:48+07:00	v0.3_armC_smc_a_L500_noma_noema	fail		0	5400	0	1000	/home/lana/.mt5/drive_c/Program Files/MetaTrader 5

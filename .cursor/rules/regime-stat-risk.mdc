@@ -1,0 +1,53 @@
+---
+description: Regime detection, momentum stats store, deterministic risk engine, LLM JSON contract
+alwaysApply: true
+---
+
+# Regime, statistics, risk, and LLM
+
+## Regime detection
+
+Minimum labels: `TREND_UP`, `TREND_DOWN`, `RANGE`, `HIGH_VOLATILITY`, `LOW_VOLATILITY`, `ABNORMAL`, `UNKNOWN`.
+
+- Measure momentum performance **by regime**.
+- `UNKNOWN` or `ABNORMAL` → default **WAIT** or minimum exposure.
+
+## Momentum Performance Store
+
+Index stats by: symbol, timeframe, `momentum_id`, direction, regime, session, layer number, time period, `episode_id`.
+
+Required fields: total trades/episodes, wins/losses, trade- and episode-level win rate, avg win/loss, expectancy, profit factor, max DD, max consecutive losses, avg hold, avg spread/slippage, worst episode loss, recovery time, rolling performance, confidence/uncertainty estimate.
+
+Do not promote to HPM on tiny samples — define and justify minimum trade and episode thresholds before implementation.
+
+## Risk Engine (deterministic, independent of LLM)
+
+Must be able to reject any trade or layer. Required controls:
+
+- risk per trade; total risk per episode; total open risk
+- max account exposure; max daily / weekly loss; max drawdown
+- max consecutive losses; max open positions; max margin usage
+- max spread / slippage; stop-loss required; min R:R when structure supports
+- cooldown after loss; news / abnormal-vol protection
+- connection-failure protection; duplicate-order protection
+- emergency kill switch
+
+Align with parent XAUUSD pins where applicable: **1%** cash risk per trade, SL ≥ **1× ATR(14)** on entry TF, planned R:R ≥ **2:1**, news blackout ±30 min CPI/NFP/FOMC unless explicitly enabled and tested.
+
+## LLM role (analysis only)
+
+May: interpret structured features; compare momentum candidates; check regime vs historical performance; recommend BUY / SELL / WAIT / REDUCE_LAYER / HALT; explain TF conflicts; emit auditable reason codes.
+
+Must **not**: analyze raw unstructured tick streams; increase max risk; remove SL; increase leverage; bypass spread or daily-loss protection; open unlimited positions; change broker credentials; send orders without Risk Engine validation.
+
+Precompute and validate features before LLM input. Output must be strict JSON:
+
+- `decision`, `direction`, `selected_momentum_id`
+- `recommended_maximum_layers`, `confidence`
+- `reason_codes`, `invalidation_conditions`, `data_quality_status`
+
+Invalid, incomplete, contradictory, or delayed JSON → **WAIT**. LLM unavailable → deterministic fallback. Every LLM recommendation passes Risk Engine before execution.
+
+## Logging (audit)
+
+Log accepted and rejected decisions. Prefer fields: timestamp, symbol, TF, bid/ask/spread, features, regime, `momentum_id`, trade/episode stats, LPM/MPM/HPM, sample size, expectancy, proposed layers, risk budget, LLM in/out, risk checks, final decision, order response, slippage, P&L, error. Experts lines use parent §9 (`InpLogTag` + event codes).

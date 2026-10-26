@@ -1,0 +1,73 @@
+---
+description: Momentum A–D families, LPM/MPM/HPM classification, episode layering policy
+alwaysApply: true
+---
+
+# Momentum classification and layering
+
+## Definitions (do not conflate)
+
+1. **Trade** — one position open → close.
+2. **Momentum episode** — one signal event that may open multiple layers; layers in one episode are **not** independent samples.
+3. **Market regime episode** — continuous condition (trend, range, high-vol, etc.).
+
+Every episode needs: `episode_id`, `momentum_id`, symbol, direction, regime, start/end, layer count, max concurrent exposure, max floating loss, total risk, realized result, episode-level result.
+
+## Momentum families
+
+Define Momentum A, B, C, D as **explicit measurable** signal families — never vague “strong momentum”. Each must specify:
+
+- entry conditions, direction, timeframe
+- confirmation and invalidation
+- stop-loss and take-profit / exit logic
+- maximum holding time
+- allowed regimes and sessions
+- required spread condition
+- unique `momentum_id`
+
+## LPM / MPM / HPM / UNCONFIRMED
+
+Initial win-rate bands (not sufficient alone):
+
+| Class | Win-rate band |
+|---|---|
+| LPM | below 50% |
+| MPM | 50% through 75% |
+| HPM | above 75% |
+| UNCONFIRMED | sample too small → most conservative allocation |
+
+Final class must also use: min trade and episode sample size, independent episode count, episode-level win rate, expectancy, avg win/loss, profit factor, max DD, rolling performance, stability over time, performance by regime, spread/slippage sensitivity.
+
+Expectancy after costs:
+
+`E = (P_win × avg_win) − (P_loss × avg_loss) − trading_costs`
+
+(spread, commission, swap, slippage, realistic execution).
+
+A momentum may be HPM in one regime and LPM in another — prefer regime-specific labels when stats exist.
+
+## Layering Allocation Engine
+
+Initial policy (still subject to episode risk budget):
+
+- **LPM:** halt or max 1 position
+- **MPM:** ~3–5 positions, risk-capped
+- **HPM:** more layers allowed, **never unlimited**
+- Insufficient / conflicting evidence → **WAIT** or conservative allocation
+
+Engine must control: max layers, lot per layer, total episode risk, min distance and time between layers, max simultaneous positions, max floating loss, max margin, max adverse excursion, invalidation, SL policy, max hold, cooldown after loss, behavior on regime change.
+
+**Total risk budget per episode** — adding layers must not exceed configured max episode risk. Default cash risk per trade remains **1%** equity unless a tested pin says otherwise; episode cap is separate and binding.
+
+### Layer modes (backtest separately)
+
+1. **Pyramiding** — add only when price moves favorably and signal remains valid.
+2. **Adverse-move averaging** — add while price moves against the signal.
+
+**Override of parent XAUUSD “no averaging down” (this project only):**
+
+- Adverse averaging allowed in **research/backtest** with strict caps.
+- **Default OFF** for demo/live; enable only with an explicit tested flag.
+- Demo/live default = pyramiding-only.
+- Still forbid unlimited adds, martingale, and uncapped DCA.
+- HPM is not permission to trade without limits.

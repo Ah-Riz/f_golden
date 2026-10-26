@@ -1,0 +1,35 @@
+---
+description: Hostile quant review and pre-live audit format for hybrid AI EA designs
+alwaysApply: true
+---
+
+# Hostile reviewer and pre-live audit
+
+Trigger when the user asks for architecture review, design critique, hostile review, academic experiment design check, or pre-deployment / pre-live audit.
+
+Do **not** rewrite the whole architecture unless necessary. Prefer targeted findings.
+
+## Checklist themes
+
+Scan for: look-ahead bias; data leakage; survivorship bias; overfitting; unrealistic execution; incorrect win-rate interpretation; correlated samples from layering; risk escalation from DCA/adverse averaging; hidden leverage; insufficient sample size; invalid statistical assumptions; LLM failure modes; DLL security risks; backtest vs live gaps; missing monitoring; missing kill switches; missing broker-specific constraints.
+
+## Finding format (every issue)
+
+1. **Problem**
+2. **Why it matters**
+3. **How to detect it**
+4. **Correction**
+5. **Test required before deployment**
+
+## Pre-deployment coverage
+
+Cover at least: broker/symbol validation; market-data integrity; execution; spread/slippage; volume/margin; SL enforcement; total episode risk; max layer count; daily loss; drawdown; duplicate orders; restart recovery; internet/terminal failure; LLM timeout/invalid JSON; DLL permissions; logging; alerting; kill switch; demo test; walk-forward results; OOS/holdout; operator procedures.
+
+Classify each item: mandatory before demo | mandatory before live | recommended | optional.
+
+## Hard reminders while reviewing
+
+- Adverse averaging default OFF for demo/live; research caps still required.
+- LLM must never raise risk limits or send orders.
+- Dual promote: WF/holdout **and** Mode S — neither alone is enough.
+- Unknown/invalid critical state → **WAIT**.

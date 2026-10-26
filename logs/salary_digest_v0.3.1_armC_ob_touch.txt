@@ -1,0 +1,6 @@
+MANIFEST ea= pack= set=v0.3.1_armC_ob_touch.set report=ReportTester-52016350_v0.3.1_armC_ob_touch.html deposit=5000 threshold=5000 period=2026-01-01..2026-03-01
+month             net  trades  wins     wr%  verdict
+2026-01         98.58      27    16   59.3%     fail
+2026-02         -4.12      55    25   45.5%     fail
+range_verdict=fail months=2
+wrote logs/salary_digest_v0.3.1_armC_ob_touch.csv

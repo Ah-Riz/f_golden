@@ -1,0 +1,6 @@
+trades=214
+early_stop=37 (17.3%)
+exit_class={'tp': 40, 'other': 114, 'sl_initial_loss': 27, 'sl_trail': 33}
+failure_label={'valid_tp': 40, 'flat_other': 14, 'flat_near_sl_suspect': 100, 'valid_stop_or_insufficient_evidence': 23, 'trail_into_profit': 33, 'poor_entry_timing_or_tight_sl': 4}
+continuation_r=unavailable (pass --bars for M5 OHLC)
+defs: early_hold<900.0s OR mae_r>=0.7 in first 3.0 M5; favorable=post_exit>=1.0R over 20 bars

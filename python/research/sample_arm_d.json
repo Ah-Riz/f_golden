@@ -1,0 +1,8 @@
+{
+  "max_dd": 12.0,
+  "expectancy": 0.5,
+  "episode_expectancy": 1.2,
+  "pf": 1.4,
+  "worst_episode_loss": 800,
+  "avg_layers": 1.0
+}

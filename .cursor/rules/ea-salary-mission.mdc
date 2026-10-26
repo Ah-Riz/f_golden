@@ -1,0 +1,132 @@
+---
+description: Forex AI EA lab — Mode S salary on RoboForex cent + dual promote gate
+alwaysApply: true
+---
+
+# EA salary mission
+
+This project is the **hybrid AI EA lab** (`gold_rush_AI`). Train and research here; deploy later. Treat every Strategy Tester run as a real-life rehearsal. Educational risk framing only — never guarantee profit.
+
+Hybrid architecture, momentum classification, layering, regime/risk, and walk-forward gates: see sibling rules `hybrid-ai-architecture`, `momentum-layering`, `regime-stat-risk`, `research-validation`, `hostile-reviewer`. Parent XAUUSD trade craft still applies unless those rules explicitly override (controlled adverse averaging for research only).
+
+## Goal
+
+- Maximize **monthly** profit (treat as salary).
+- Prefer **smaller** real-money deposits; on **cent** accounts that means a larger **account-unit** balance.
+- Losing trades are OK; the **month** must still clear the salary bar.
+
+## Broker — RoboForex cent
+
+- Live / salary Tester book: **cent** account. Deposit, P&L, and pass bar are in **account currency units** (often labeled USD in reports but sized as cents: **100 units ≈ $1 real**).
+- **100% rule (non-negotiable):** pass month iff closed net ≥ **+deposit** (same units as Tester deposit).
+- Do **not** mix unlabeled salary metrics with research runs on a different capital scale.
+
+## Salary gate (hard) — Mode S
+
+**One** continuous Strategy Tester run over the eval range; agent slices monthly P&L from the report Deals table. Do **not** require 14 separate monthly restarts.
+
+| Item | Value |
+|---|---|
+| Salary deposit | **50,000** account units (cent ≈ **$500 real**) |
+| Pass month | closed-deal net ≥ **+5,000** units ≈ **+$50 real**/mo (Screen S pin; override with `--threshold`) |
+| Full promote bar | **+50,000** units ≈ **+$500 real**/mo (= 100% of deposit) on full Mode S only |
+| Framing | Tester/report “USD” on this book = **cent units**, not dollars. Never call the bar “$50k/mo”. |
+| Run identity | Every score must cite **`ea_version` + `pack_id` + `set_name`**. Never cite bare `_006`. |
+| Chart | **M5** |
+| Default range | **2025.01.01 – 2026.03.01** |
+| Inputs | **Load** matching `sets/… .set` (no hand edits) |
+| Zero-trade month | **fail** |
+| Range pass | **every** calendar month in the range passes |
+
+After the run: archive one `ReportTester-*` + Experts into `logs/`.
+
+## Dual promote gate (non-negotiable)
+
+Promote / Reset-default / live size requires **both**:
+
+1. **Mode S** — full range pass + slicer digest at the cent pin (this file).
+2. **Walk-forward + untouched holdout** — risk-adjusted pass per `research-validation.mdc`.
+
+Refuse promote if either gate is missing, failed, or fabricated.
+
+## Auto-slice on “done” / “analyze” (mandatory)
+
+When the user says **done**, **batch done**, **analyze**, or **analyse** after Tester work:
+
+1. **Immediately** run (do not ask; do not only print the command):
+
+```bash
+python3 logs/auto_slice_on_done.py
+```
+
+That runs **gate_check** (INIT `set=` + Inputs vs `.set`) then slices only valid reports. INVALID → `logs/salary_INVALID_v0.X_NNN.txt`, no digest.
+
+Optional filters if the user named packs/version:
+
+```bash
+python3 logs/auto_slice_on_done.py --packs 023-028
+python3 logs/auto_slice_on_done.py --version v0.3
+python3 logs/auto_slice_on_done.py --force   # re-slice existing digests
+python3 logs/gate_check.py --checklist       # print re-run steps after EA code change
+```
+
+2. That script slices any `logs/ReportTester-*_v0.X_NNN.html` missing a digest (or newer than digest), writes `salary_digest_v0.X_NNN.csv` with version/set metadata, then runs `backfill_digest_metadata.py` → refreshes `logs/RUN_INDEX.csv`.
+
+3. **Only then** score/compare from `RUN_INDEX.csv` + digests. Refuse analysis that skips the auto-slice step when new reports exist.
+
+Manual one-off (same pins):
+
+```bash
+python3 logs/salary_month_slice.py <report.html> --deposit 50000 --threshold 5000 \
+  --set v0.X_NNN_tag.set \
+  --csv logs/salary_digest_v0.X_NNN.csv --range 2026-01:2026-02
+python3 logs/backfill_digest_metadata.py
+```
+
+**Refuse pass/promote** without a slicer result.
+
+If INIT warns equity / `lot < min` at 50,000, **raise** deposit and keep bar = **100% of the new deposit** — never drop the 100% rule. Do **not** use a tiny deposit that hits the minLot wall.
+
+## Tooling path (AI lab)
+
+Until `logs/` + slicer scripts exist in this repo, Mode S runs/archives may use the sibling protocol under `gold_rush_pro_Fixed/` (or after a port here). **Never invent digests**, `RUN_INDEX` rows, or pass claims without real report + slicer output.
+
+## Research vs salary
+
+Research may use a different deposit; label rows as research (`salary_digest_*.RESEARCH.txt`). Research / walk-forward metrics alone do **not** promote without Mode S range pass at the cent pin (and vice versa — Mode S alone does not promote without WF/holdout).
+
+### Research 5k pin (this lab’s default Tester book)
+
+| Item | Value |
+|---|---|
+| Deposit | **5000** account units |
+| Pass month | closed-deal net ≥ **+5000** (= **100% of deposit**) |
+| Slicer | `--deposit 5000 --threshold 5000` |
+| Forbidden | `--threshold 500` (that is 10% — wrong). Never use 10% of research deposit. |
+
+If research deposit is raised, keep the **100% rule**: `--threshold` = new deposit. Still refuse Mode S / promote on research digests.
+
+## Current book
+
+- Frozen baseline in this repo: `gold_rush_pro_Fixed.mq5` — do not edit; work on versioned copies only.
+- Hybrid AI EAs: new versioned `.mq5` + optional Python research service; keep `InpLogTag` / INIT `set=<stem>` discipline.
+- Every set: `InpLogTag`/`InpComment` = set stem. Experts: `[stem] …`. Refuse score if INIT `set=` ≠ loaded file.
+
+## Forbidden (salary integrity)
+
+- Claiming salary pass when Tester deposit ≠ slicer `--deposit`
+- Scoring research 5k runs with `--threshold` ≠ deposit (must be **100%**, i.e. 5000 at deposit 5000)
+- Promoting without Mode S range pass + slicer digest
+- Promoting without approved walk-forward + holdout (`research-validation.mdc`)
+
+## Agent duties
+
+- On **done / analyze / batch done**: run `python3 logs/auto_slice_on_done.py` first (gate + slice), then analyze — or the sibling path if tooling not yet ported; never skip when reports exist.
+- Research 5k Tester reports: always slice with `--deposit 5000 --threshold 5000` (100% rule). Never `--threshold 500`.
+
+- After EA `.mq5` edits: user must **recompile `.ex5`** before re-run; refuse score if INIT lacks `set=<stem>`.
+- Read `logs/RUN_INDEX.csv` first for ranked results — not digest filename alone.
+- Always cite **`ea_version` + `pack_id` + `set_name`**. Never say bare `_006`.
+- Always dual-label: **units** and **≈ $ real** (÷100).
+- Refuse promote if any month fails, Deals missing, deposit/threshold mismatch, or WF/holdout gate fails.
+- Prefer Load `.set` over hand-edited knobs; refuse score if INIT ≠ set.
